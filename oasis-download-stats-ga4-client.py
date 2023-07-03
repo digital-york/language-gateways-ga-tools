@@ -41,7 +41,7 @@ from google.analytics.data_v1beta.types import (
 )
 
 
-def sample_run_report(credentials_json_path, property_id, number_of_downloads_ua=0):
+def downloads_report(credentials_json_path, property_id, number_of_downloads_ua, downloads_json_path):
     """Runs a simple report on a Google Analytics 4 property."""
 
     # Explicitly use service account credentials by specifying
@@ -105,7 +105,7 @@ def sample_run_report(credentials_json_path, property_id, number_of_downloads_ua
     }
 
     # Write the JSON to a file
-    with open('oasis_download_stats.json', 'w') as f:
+    with open(downloads_json_path + '/' + 'oasis_download_stats.json', 'w') as f:
         json.dump(data, f)
 
 # [END analyticsdata_json_credentials_quickstart]
@@ -113,29 +113,33 @@ def sample_run_report(credentials_json_path, property_id, number_of_downloads_ua
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Process the path to the credentials JSON file.')
-    parser.add_argument('--path', type=str,
+        description='Query GA4 report to obtain OASIS total downlods stats')
+    parser.add_argument('--ga_credentials_path', type=str,
                         help='Path to the credentials JSON file.')
     parser.add_argument('--property_id', type=str, help='GA4 property ID.')
-    parser.add_argument('--ua_downloads', type=str, help='Number of UA downloads as recorded on UA before switchihg to GA4')
+    parser.add_argument('--ua_downloads_number', type=str, help='Number of UA downloads as recorded on UA before switchihg to GA4')
+    parser.add_argument('--downloads_json_path', type=str, help='Path where to save oasis_download_stats.json file. Default "./"')
     args = parser.parse_args()
 
-    if not args.path:
+    if not args.ga_credentials_path:
         raise ValueError(
-            'Please provide the path to the credentials.json file using the --path argument')
+            'Please provide the path to the credentials.json file using the --ga_credentials_path argument')
 
     if not args.property_id:
         raise ValueError(
             'Please provide the GA4 property ID using the --property_id argument')
         
-    credentials_json_path = args.path
+    credentials_json_path = args.ga_credentials_path
     ga4_property_id = args.property_id
+    downloads_json_path = args.downloads_json_path
     
-    if not args.ua_downloads:
+    if not args.ua_downloads_number:
         # Number of downloads from OASIS UA on 22nd Jun 2023
         number_of_downloads_ua = 53948
     else:
-        number_of_downloads_ua = int(args.ua_downloads)
+        number_of_downloads_ua = int(args.ua_downloads_number)
+        
+    if not args.downloads_json_path:
+        downloads_json_path = '.'
 
-
-    sample_run_report(credentials_json_path, ga4_property_id, number_of_downloads_ua)
+    downloads_report(credentials_json_path, ga4_property_id, number_of_downloads_ua, downloads_json_path)
